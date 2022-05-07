@@ -257,7 +257,7 @@ function check_roles(requiredRoles, excludedRoles, guild, member) {
 	}
 	if (!_role) {
 		for (const requiredRole of requiredRoles) { roles += requiredRole == requiredRoles[requiredRoles.length - 1] ? requiredRole : `${requiredRole} or `;}
-		throw `You must have the "${roles}" role to use this command.`;
+		throw `You must have the ${roles} role to use this command.`;
 	}
 
 	for (const excludedRole of excludedRoles) {
