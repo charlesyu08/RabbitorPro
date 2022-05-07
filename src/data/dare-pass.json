@@ -1,0 +1,36 @@
+{
+    "passes": [
+        {
+            "name": "Standard",
+            "no": 0,
+            "price": 1000000,
+            "reqrole": ["935920535286726666","930135304633983026"],
+            "giverole": "971824292369145877"
+        },
+        {
+            "name": "Deluxe",
+            "no": 1,
+            "price": 1500000,
+            "reqrole": ["942807085073190944"],
+            "giverole": "971824439660535839"
+        },{
+            "name": "Premium",
+            "no": 2,
+            "price": 2500000,
+            "reqrole": [],
+            "giverole": "971824570636050472"
+        },{
+            "name": "Ultimate",
+            "no": 3,
+            "price": 5000000,
+            "reqrole": [],
+            "giverole": "971824749795770438"
+        },{
+            "name": "Infinite",
+            "no": 4,
+            "price": 100000000,
+            "reqrole": [],
+            "giverole": "971824790589542500"
+        }
+    ]
+}

@@ -1,0 +1,81 @@
+{
+    "activities": [
+        {
+            "label": "Youtube Watch Together",
+            "description": "Unlimited participants",
+            "value": "youtube"
+        },
+        {
+            "label": "Poker Night",
+            "description": "Up to 25 participants",
+            "value": "poker"
+        },
+        {
+            "label": "Chess In The Park",
+            "description": "Unlimited participants",
+            "value": "chess"
+        },
+        {
+            "label": "Checkers In The Park",
+            "description": "Unlimited participants",
+            "value": "checkers"
+        },
+        {
+            "label": "Betrayl.io",
+            "description": "Up to 12 participants",
+            "value": "betrayal"
+        },
+        {
+            "label": "Fishington.io",
+            "description": "Unlimited participants",
+            "value": "fishing"
+        },
+        {
+            "label": "Letter League",
+            "description": "Up to 8 participants",
+            "value": "lettertile"
+        },
+        {
+            "label": "Word Snacks",
+            "description": "Up to 8 participants",
+            "value": "wordsnack"
+        },
+        {
+            "label": "Doodle Crew",
+            "description": "Up to 12 participants",
+            "value": "doodlecrew"
+        },
+        {
+            "label": "Spell Cast",
+            "description": "Up to 100 participants",
+            "value": "spellcast"
+        },
+        {
+            "label": "Awkword",
+            "description": "Up to 12 participants",
+            "value": "awkword"
+        },
+        {
+            "label": "Putt Party",
+            "description": "Up to 12 participants",
+            "value": "puttparty"
+        },
+        {
+            "label": "Sketchheads",
+            "description": "Up to 16 participants",
+            "value": "sketchheads"
+        },
+        {
+            "label": "Ocho",
+            "description": "Up to 8 participants",
+            "value": "ocho"
+        }
+    ],
+    "depleted_activities": [
+        {
+            "label": "Sketchy Artist",
+            "description": "Up to 12 participants",
+            "value": "sketchyartist"
+        }
+    ]
+}

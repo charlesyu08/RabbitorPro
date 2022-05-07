@@ -1,0 +1,38 @@
+{
+    "name": "diamond-chips-ambassador",
+    "main": "src/index.js",
+    "dependencies": {
+        "@discordjs/builders": "latest",
+        "@discordjs/rest": "latest",
+        "discord-api-types": "latest",
+        "discord-together": "latest",
+        "discord.js": "latest",
+        "dotenv": "latest",
+        "express": "latest",
+        "module-alias": "latest",
+        "mongoose": "latest",
+        "morgan": "latest",
+        "node-fetch": "latest",
+        "nodemon": "latest",
+        "npm": "latest",
+        "pretty-ms": "latest",
+        "unb-api": "latest"
+    },
+    "_moduleAliases": {
+        "@root": "./src",
+        "@api": "./src/api",
+        "@routes": "./src/api/routes",
+        "@handlers": "./src/handlers",
+        "@commands": "./src/commands/command",
+        "@slash": "./src/slash",
+        "@events": "./src/events/event",
+        "@services": "./src/services",
+        "@schemas": "./src/schemas",
+        "@util": "./src/util",
+        "@data": "./src/data",
+        "@image": "./src/image"
+    },
+    "scripts": {
+        "start": "node src/index.js"
+    }
+}
