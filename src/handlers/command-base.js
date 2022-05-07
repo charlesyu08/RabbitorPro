@@ -166,10 +166,9 @@ module.exports = (client, commandOptions) => {
 						}
 					}
 					if (nic == true) {
-						let msg = '';
-						msg = 'You can only run this command inside of ';
+						let msg = 'You can only run this command inside of ';
 						for (const requiredChannel of requiredChannels) {
-							msg += `${requiredChannels.length > 1 ? ', ' : ''}<#${requiredChannel}> `;
+							msg += requiredChannel == requiredChannels[requiredChannels.length - 1] ? `<#${requiredChannel}>` : `<#${requiredChannel}> ,`;
 						}
 						message.reply(msg);
 						return;
@@ -184,26 +183,12 @@ module.exports = (client, commandOptions) => {
 				}
 
 				// Ensure the user has the required roles
-				for (const requiredRole of requiredRoles) {
-					const role = guild.roles.cache.find((role) => {
-						if (role.name == requiredRole) return role;
-						if (role.id == requiredRole) return role;
-					});
-					if (!role || !member.roles.cache.has(role.id)) {
-						message.reply(`You must have the "${requiredRole}" role to use this command.`);
-						return;
-					}
+				try {
+					check_roles(requiredRoles, excludedRoles, guild, member);
 				}
-
-				for (const excludedRole of excludedRoles) {
-					const role = guild.roles.cache.find((role) => {
-						if (role.name == excludedRole) return role;
-						if (role.id == excludedRole) return role;
-					});
-					if (member.roles.cache.has(role.id)) {
-						message.reply('You can not use this command.');
-						return;
-					}
+				catch (err) {
+					message.reply(err);
+					break;
 				}
 
 				let cooldownString = '${guild.id}-${member.id}-${commands[0]}';
@@ -257,3 +242,29 @@ module.exports.loadPrefixes = async (client) => {
 
 	console.log(guildPrefixes);
 };
+
+function check_roles(requiredRoles, excludedRoles, guild, member) {
+	let _role = false, roles = '';
+	for (const requiredRole of requiredRoles) {
+		const role = guild.roles.cache.find((role) => {
+			if (role.name == requiredRole) return role;
+			if (role.id == requiredRole) return role;
+		});
+		if (role && member.roles.cache.has(role.id)) {
+			_role = true;
+			break;
+		}
+	}
+	if (!_role) {
+		for (const requiredRole of requiredRoles) { roles += requiredRole == requiredRoles[requiredRoles.length - 1] ? requiredRole : `${requiredRole} or `;}
+		throw `You must have the "${roles}" role to use this command.`;
+	}
+
+	for (const excludedRole of excludedRoles) {
+		const role = guild.roles.cache.find((role) => {
+			if (role.name == excludedRole) return role;
+			if (role.id == excludedRole) return role;
+		});
+		if (role && member.roles.cache.has(role.id)) { throw 'You can not use this command.';}
+	}
+}

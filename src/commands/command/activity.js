@@ -51,7 +51,7 @@ async function getchannel(client, message, channelID) {
 	const result = await ServerConfigSchema.findOne({ guildID: message.guild.id });
 	if (message.member.voice.channel) { channelID = message.member.voice.channel.id; }
 	if (!client.channels.cache.get(channelID)) {
-		channelID = result ? result.activity_ch : activity_ch;
+		channelID = result.activity_ch || activity_ch;
 		if (!client.channels.cache.get(channelID)) { throw 'Please provide a valid voice channel'; }
 	}
 	if (client.channels.cache.get(channelID).guild.id != message.guild.id) { throw 'Please provide a valid voice channel'; }
