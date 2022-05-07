@@ -9,7 +9,7 @@ module.exports = {
 	description: 'Activities',
 	requiredChannels: ['937829577856790618', '673727054688157716', '676582767139749950', '783440749357301780'],
 	//                 a-channel               bot-command            off-topic           vip-booster-chat
-	requiredRoles: ['677226056201011201', ''],
+	requiredRoles: ['935920535286726666', '677226056201011201'],
 	permissionError: 'You don\'t have permissions to run this command',
 	callback: async (message, args, _, prefix, client) => {
 		await newActivity(message, client, args, prefix);
