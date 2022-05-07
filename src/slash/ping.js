@@ -5,7 +5,8 @@ const prettyMS = require('pretty-ms');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('ping')
-		.setDescription('Get bot / server ping'),
+		.setDescription('Get bot / server ping')
+		.setDefaultPermission(false),
 	listener: async (client, discord, interaction) => {
 		if (interaction.commandName === 'ping') {
 			const msgemb = new Discord.MessageEmbed()

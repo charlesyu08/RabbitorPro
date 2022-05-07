@@ -1,4 +1,6 @@
 {
+	"appName": "rabbitor-pro",
+	"dynoName": "worker",
 	"prefix": "-",
 	"guild_id": "923634621730672650",
 	"announce_ch": "937829577856790618",
