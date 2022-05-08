@@ -7,8 +7,8 @@ module.exports = {
 	commands: ['activity'],
 	minArgs: 0,
 	description: 'Activities',
-	requiredChannels: ['937829577856790618', '673727054688157716', '676582767139749950', '783440749357301780'],
-	//                     a-channel              bot-command            off-topic         vip-booster-chat
+	requiredChannels: ['934043094989570100', '673727054688157716', '676582767139749950', '783440749357301780'],
+	//                          test              bot-command            off-topic         vip-booster-chat
 	requiredRoles: ['935920535286726666', '677226056201011201'],
 	permissionError: 'You don\'t have permissions to run this command',
 	callback: async (message, args, _, prefix, client) => {

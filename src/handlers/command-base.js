@@ -187,7 +187,7 @@ module.exports = (client, commandOptions) => {
 					check_roles(requiredRoles, excludedRoles, guild, member);
 				}
 				catch (err) {
-					message.reply(err);
+					message.reply({ content: err, allowedMentions: { parse: [ 'users' ] } });
 					break;
 				}
 
@@ -244,20 +244,20 @@ module.exports.loadPrefixes = async (client) => {
 };
 
 function check_roles(requiredRoles, excludedRoles, guild, member) {
-	let _role = false, roles = '';
+	let msg = '', roles = [];
 	for (const requiredRole of requiredRoles) {
 		const role = guild.roles.cache.find((role) => {
 			if (role.name == requiredRole) return role;
 			if (role.id == requiredRole) return role;
 		});
-		if (role && member.roles.cache.has(role.id)) {
-			_role = true;
-			break;
+		if (role) {
+			if (member.roles.cache.has(role.id)) { break; }
+			roles.push(role);
 		}
 	}
-	if (!_role) {
-		for (const requiredRole of requiredRoles) { roles += requiredRole == requiredRoles[requiredRoles.length - 1] ? requiredRole : `${requiredRole} or `;}
-		throw `You must have the ${roles} role to use this command.`;
+	if (roles.length >= 1) {
+		for (const role of roles) { msg += role == roles[roles.length - 1] ? `${role}` : `${role} or `;}
+		throw `You must have ${msg} role to use this command.`;
 	}
 
 	for (const excludedRole of excludedRoles) {
