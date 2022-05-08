@@ -142,49 +142,10 @@ module.exports = (client, commandOptions) => {
 				content.toLowerCase().startsWith(`${command} `) ||
 				content.toLowerCase() === command
 			) {
-				if (!!excludedChannels && excludedChannels.length > 0) {
-					let nic = false;
-					for (const excludedChannel of excludedChannels) {
-						if (excludedChannel && excludedChannel === channel.id) {
-							nic = true;
-							break;
-						}
-					}
-					if (nic == true) {
-						let msg = '';
-						msg = 'You cannot run this command in this channel ';
-						message.reply(msg);
-						return;
-					}
-				}
-				if (!!requiredChannels && requiredChannels.length > 0) {
-					let nic = true;
-					for (const requiredChannel of requiredChannels) {
-						if (requiredChannel && requiredChannel === channel.id) {
-							nic = false;
-							break;
-						}
-					}
-					if (nic == true) {
-						let msg = 'You can only run this command inside of ';
-						for (const requiredChannel of requiredChannels) {
-							msg += requiredChannel == requiredChannels[requiredChannels.length - 1] ? `<#${requiredChannel}>` : `<#${requiredChannel}> ,`;
-						}
-						message.reply(msg);
-						return;
-					}
-				}
-
-				for (const permission of permissions) {
-					if (!member.permissions.has(permission)) {
-						message.reply(permissionError);
-						return;
-					}
-				}
-
-				// Ensure the user has the required roles
 				try {
-					check_roles(requiredRoles, excludedRoles, guild, member);
+					check_channel(excludedChannels, requiredChannels, channel); // Ensure the user runs the command within the correct channels
+					check_permission(permissions, member); // Ensure the user has the required permissions
+					check_roles(requiredRoles, excludedRoles, guild, member); // Ensure the user has the required roles and not have disallowed roles
 				}
 				catch (err) {
 					message.reply({ content: err, allowedMentions: { parse: [ 'users' ] } });
@@ -243,6 +204,40 @@ module.exports.loadPrefixes = async (client) => {
 	console.log(guildPrefixes);
 };
 
+function check_channel(excludedChannels, requiredChannels, mychannel) {
+	let msg = '', channels = [];
+	if (!!excludedChannels && excludedChannels.length > 0) {
+		for (const excludedChannel of excludedChannels) {
+			if (excludedChannel && excludedChannel === mychannel.id) { throw 'You cannot run this command in this channel'; }
+		}
+	}
+	if (!!requiredChannels && requiredChannels.length > 0) {
+		for (const requiredChannel of requiredChannels) {
+			if (requiredChannel && requiredChannel === mychannel.id) { break; }
+			channels.push(requiredChannel);
+		}
+		if (channels.length > 0) {
+			for (const channel of channels) {
+				msg += channel == channels[channels.length - 1] ? `<#${channel}>` : `<#${channel}>, `;
+			}
+			throw `You can only run this command in the following channel${channels.length > 1 ? 's' : ''}:\n${msg}`;
+		}
+	}
+}
+
+function check_permission(permissions, member) {
+	let msg = '', perms = [];
+	for (const permission of permissions) {
+		if (!member.permissions.has(permission)) {
+			perms.push(permission);
+		}
+	}
+	if (perms.length > 0) {
+		for (const perm of perms) { msg += perm == perms[perms.length - 1] ? `\` ${perm} \`` : `\` ${perm} \`, `; }
+		throw `You are missing the following permission${perms.length > 1 ? 's' : ''}:\n${msg}.`;
+	}
+}
+
 function check_roles(requiredRoles, excludedRoles, guild, member) {
 	let msg = '', roles = [];
 	for (const requiredRole of requiredRoles) {
@@ -255,9 +250,9 @@ function check_roles(requiredRoles, excludedRoles, guild, member) {
 			roles.push(role);
 		}
 	}
-	if (roles.length >= 1) {
+	if (roles.length > 0) {
 		for (const role of roles) { msg += role == roles[roles.length - 1] ? `${role}` : `${role} or `;}
-		throw `You must have ${msg} role to use this command.`;
+		throw `You must have the following role${roles.length > 1 ? 's' : ''}:\n${msg}`;
 	}
 
 	for (const excludedRole of excludedRoles) {
