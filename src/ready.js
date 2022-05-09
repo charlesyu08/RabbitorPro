@@ -1,3 +1,4 @@
+const os = require('node:os');
 const ServerConfigSchema = require('@schemas/server-config-schema');
 
 module.exports = async (client, Discord, mongo, config) => {
@@ -29,7 +30,7 @@ module.exports = async (client, Discord, mongo, config) => {
 
 	const msgemb = new Discord.MessageEmbed()
 		.setColor('#80ff00')
-		.setTitle('Rabbitor Pro is Ready')
+		.setTitle(os.hostname() == 'DELL-XPS' ? 'Rabbitor Pro is Ready(Localhost)' : 'Rabbitor Pro is Ready')
 		.setTimestamp();
 
 	msg = await AnnounceCh.send({ embeds: [msgemb] });
