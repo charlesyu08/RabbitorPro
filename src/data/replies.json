@@ -1,0 +1,9 @@
+{
+    "permission": {
+        "excludedChannels": "You cannot run this command in this channel",
+        "requiredChannels": "You can only run this command in the following channel<f1>:\n<f2>",
+        "permissions": "You are missing the following permission<f1>:\n<f2>",
+        "requiredRoles": "You are missing the permitted role<f1>:\n<f2>",
+        "excludedRoles": "You are not permitted to use this command."
+    }
+}

@@ -12,7 +12,6 @@ module.exports = {
 			const msgemb = new Discord.MessageEmbed()
 				.setColor('#8080ff')
 				.setTitle('Ping');
-			// const message = await interaction.reply({ content: '_ _' });
 			const reply = await interaction.channel.send({ embeds: [msgemb] });
 			await reply.edit({ embeds: [msgemb.setTitle('**Ping ... Pong!!!**')] });
 			reply.delete().catch(error => {
