@@ -4,7 +4,7 @@
 /* eslint-disable prefer-const */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
-
+const os = require('node:os');
 const mongo = require('@root/mongo');
 const ServerConfigSchema = require('@schemas/server-config-schema');
 const { prefix: globalPrefix } = require('@root/config.json');
@@ -140,7 +140,7 @@ module.exports = (client, commandOptions) => {
 	client.on('messageCreate', message => {
 		const { member, content, guild, channel } = message;
 
-		const prefix = guildPrefixes[guild.id] || globalPrefix;
+		const prefix = os.hostname('DELL-XPS') ? '=' : guildPrefixes[guild.id] || globalPrefix;
 
 		for (const alias of commands) {
 			const command = `${prefix}${alias.toLowerCase()}`;
