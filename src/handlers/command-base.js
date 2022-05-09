@@ -140,7 +140,7 @@ module.exports = (client, commandOptions) => {
 	client.on('messageCreate', message => {
 		const { member, content, guild, channel } = message;
 
-		const prefix = os.hostname('DELL-XPS') ? '=' : guildPrefixes[guild.id] || globalPrefix;
+		const prefix = os.hostname() == 'DELL-XPS' ? '=' : guildPrefixes[guild.id] || globalPrefix;
 
 		for (const alias of commands) {
 			const command = `${prefix}${alias.toLowerCase()}`;
