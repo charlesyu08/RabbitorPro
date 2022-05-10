@@ -63,7 +63,7 @@ async function check_role(guild, user) {
 		if (role.timed) {
 			check_timeout(role, index, roles);
 		}
-		if (user.roles.cache.has(role.id) || user.roles.cache.has('everyone')) myroles.push(role);
+		if (user.roles.cache.has(role.id) || role.id == 'everyone') myroles.push(role);
 	});
 	return data.multiplier * mymultiplier(myroles);
 }
