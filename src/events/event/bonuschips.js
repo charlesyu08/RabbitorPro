@@ -17,7 +17,7 @@ module.exports = (client, discord) => {
 			const guild = await message.guild.fetch();
 			const target = await guild.members.fetch({ user: message.mentions.users.first(), force: true });
 			bonus: try {
-				//const currency = await getCurrency(guild.id);
+				// const currency = await getCurrency(guild.id);
 				if (!check_type(message.embeds[0])) break bonus;
 				const multiplier = check_role(guild, target);
 				if(multiplier == 1) break bonus;

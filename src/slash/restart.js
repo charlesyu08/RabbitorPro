@@ -18,6 +18,8 @@ module.exports = {
 
 			heroku.delete('/apps/' + appName + '/dynos/' + dynoName)
 				.then(x => console.log(x));
+
+			return true;
 		}
 	},
 };

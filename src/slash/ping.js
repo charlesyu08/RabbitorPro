@@ -26,6 +26,7 @@ module.exports = {
 				`:heartbeat: **Uptime:** ${prettyMS(client.uptime, { secondsDecimalDigits: 3 })}`)
 				.setTimestamp();
 			interaction.reply({ embeds: [msgemb], ephemeral: true });
+			return true;
 		}
 	},
 };

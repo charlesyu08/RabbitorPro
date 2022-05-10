@@ -20,6 +20,6 @@ module.exports = async (client) => {
 				setDefaultsOnInsert: true,
 			},
 		);
-		console.log(`Config init for ${guild.id}`);
+		console.log(`Config init for ${guild.name}`);
 	});
 };

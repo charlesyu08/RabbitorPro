@@ -4,6 +4,7 @@ const { newActivity } = require('@commands/activity');
 const { ChannelType } = require('discord-api-types/v10');
 
 module.exports = {
+	global: true,
 	data: new SlashCommandBuilder()
 		.setName('activity')
 		.setDescription('Discord Activity')
@@ -22,6 +23,7 @@ module.exports = {
 					console.log('Failed to delete the message:', error);
 				}
 			});
+			return true;
 		}
 	},
 };
