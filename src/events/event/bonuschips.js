@@ -1,5 +1,5 @@
 const { passes } = require('@data/dare-pass');
-const { unb_id, unb_log_ch } = require('@root/config');
+const { unb_id, unb_log_ch, unb_action_log_ch } = require('@root/config');
 const { unbclient, getCurrency, editBal } = require('@services/unb-init');
 const ServerConfigSchema = require('@schemas/server-config-schema');
 const bonusChip = require('@schemas/bonus-chip-schema');
@@ -17,19 +17,19 @@ module.exports = (client, discord) => {
 			const guild = await message.guild.fetch();
 			const target = await guild.members.fetch({ user: message.mentions.users.first(), force: true });
 			bonus: try {
-				// const currency = await getCurrency(guild.id);
-				if (!check_type(message.embeds[0])) break bonus;
+				const reason = check_type(message.embeds[0]);
+				if (!reason) break bonus;
 				const multiplier = check_role(guild, target);
 				if(multiplier == 1) break bonus;
 				const money = check_money(message.embeds[0]);
 				const newbal = await give_money(money, guild.id, target);
 				console.log(`${target} bonus: ${money}`);
-				/* const emb = new discord.MessageEmbed()
-					.setColor('RANDOM')
-					.setTitle('You have been issued:')
-					.setDescription(`Bonus currency`)
-					.addField('Your new balace:', `**Cash:** ${currency}${newbal.cash.toLocaleString()}\n**Bank:** ${currency}${newbal.bank.toLocaleString()}`);
-				message.channel.send({ content: `${target}`, embeds: [emb] }); */
+				const channel = await client.channels.cache.get(myConfig.unb_action_log_ch || unb_action_log_ch);
+				const emb = new discord.MessageEmbed()
+					.setColor('#66BB6A')
+					.setTitle('Balance updated')
+					.setDescription(`**User:** ${target}\n**Amount:** Cash: \`${money.cash}\` | Bank: \`${money.cash}\`\n**Reason:** ${reason}`);
+				channel.send({ embeds: [emb] });
 			}
 			catch (err) {
 				message.channel.send({ content: err, allowedMentions: { parse: [ 'users' ] } });
@@ -41,7 +41,7 @@ module.exports = (client, discord) => {
 };
 
 function check_type(msg) {
-	return msg.setDescription.includes('chat money');
+	if(msg.description.includes('chat money')) return msg.description.split(/\*\*Reason:\*\* /)[1];
 }
 
 function check_money(msg) {
