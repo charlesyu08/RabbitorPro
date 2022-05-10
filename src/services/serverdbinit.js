@@ -3,21 +3,23 @@
 const ServerConfigSchema = require('@schemas/server-config-schema');
 const { prefix, guild_id, announce_ch, unb_ch } = require('@root/config.json');
 
-module.exports = async () => {
-	await ServerConfigSchema.findOneAndUpdate(
-		{
-			guildID: guild_id,
-		},
-		{
-			guildID: guild_id,
-			$setOnInsert: {
-				prefix: prefix,
-				announce_ch: announce_ch,
+module.exports = async (client) => {
+	await client.guilds.cache.every(async (guild) => {
+		await ServerConfigSchema.findOneAndUpdate(
+			{
+				guildID: guild_id,
 			},
-		},
-		{
-			upsert: true,
-			setDefaultsOnInsert: true,
-		},
-	);
+			{
+				guildID: guild_id,
+				$setOnInsert: {
+					prefix: prefix,
+				},
+			},
+			{
+				upsert: true,
+				setDefaultsOnInsert: true,
+			},
+		);
+		console.log(`Config init for ${guild.id}`);
+	});
 };

@@ -27,6 +27,16 @@ const ServerConfigSchema = mongoose.Schema({
 		type: String,
 		required: false,
 	},
+
+	unb_ch: {
+		type: String,
+		required: false,
+	},
+
+	unb_log_ch: {
+		type: String,
+		required: false,
+	},
 });
 
 module.exports = mongoose.model('server-config', ServerConfigSchema);
