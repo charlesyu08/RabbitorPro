@@ -5,13 +5,16 @@ const ServerConfigSchema = require('@schemas/server-config-schema');
 const bonusChip = require('@schemas/bonus-chip-schema');
 let serverConfig = [];
 
-module.exports = (client, discord) => {
-	(async () => { serverConfig = await ServerConfigSchema.find(); })();
-	setInterval(async ()=> {serverConfig = await ServerConfigSchema.find();}, 15 * 60 * 1000);
-	client.on('messageCreate', async (message) => {
+module.exports = {
+	run: async function() {
+		serverConfig = await ServerConfigSchema.find();
+		setInterval(async ()=> {serverConfig = await ServerConfigSchema.find();}, 15 * 60 * 1000);
+	},
+	type: 'messageCreate',
+	name: 'bonuschips',
+	function: async function(client, discord, message) {
 		if(message.author.id != unb_id) { return; }
-		const myConfig = serverConfig.find((config) => config.guildID == message.guild.id);
-		console.log(myConfig);
+		const myConfig = await serverConfig.find((config) => config.guildID == message.guild.id);
 		if(message.channelId != unb_log_ch || message.channelId != myConfig.unb_log_ch) { return; }
 		if(message.content.includes(client.user.id) || message.embeds[0].includes(client.user.id)) {
 			const guild = await message.guild.fetch();
@@ -34,10 +37,8 @@ module.exports = (client, discord) => {
 			catch (err) {
 				message.channel.send({ content: err, allowedMentions: { parse: [ 'users' ] } });
 			}
-			return;
 		}
-
-	});
+	},
 };
 
 function check_type(msg) {

@@ -1,11 +1,19 @@
 const { passes } = require('@data/dare-pass');
 const { unb_id, unb_ch } = require('@root/config');
 const { unbclient } = require('@services/unb-init');
+const ServerConfigSchema = require('@schemas/server-config-schema');
+let serverConfig = [];
 
-module.exports = (client, discord) => {
-
-	client.on('messageCreate', async (message) => {
-		if(message.channelId != unb_ch || message.author.id != unb_id) { return; }
+module.exports = {
+	run: async function() {
+		serverConfig = await ServerConfigSchema.find();
+		setInterval(async ()=> {serverConfig = await ServerConfigSchema.find();}, 15 * 60 * 1000);
+	},
+	type: 'messageCreate',
+	name: 'dare-pass',
+	function: async function(client, discord, message) {
+		const myConfig = serverConfig.find((config) => config.guildID == message.guild.id);
+		if((message.channelId != myConfig?.unb_ch && message.channelId != unb_ch) || message.author.id != unb_id) { return; }
 		if(message.content.includes(client.user.id)) {
 			const guild = await message.guild.fetch();
 			const target = await guild.members.fetch({ user: message.mentions.users.first(), force: true });
@@ -25,12 +33,11 @@ module.exports = (client, discord) => {
 				message.channel.send({ content: `${target}`, embeds: [emb] });
 			}
 			catch (err) {
+				console.log(err);
 				message.channel.send({ content: err, allowedMentions: { parse: [ 'users' ] } });
 			}
-			return;
 		}
-
-	});
+	},
 };
 
 function check_pass(user) {

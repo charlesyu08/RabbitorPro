@@ -1,7 +1,9 @@
 const { activities } = require('@data/activities');
 
-module.exports = async (client, discord) => {
-	client.on('interactionCreate', async interaction => {
+module.exports = {
+	type: 'interactionCreate',
+	name: 'activities',
+	function: async function(client, discord, interaction) {
 		if (!interaction.isSelectMenu()) return;
 
 		if (interaction.customId === 'Activity_Select') {
@@ -21,7 +23,6 @@ module.exports = async (client, discord) => {
 			msgEmbed.setTitle(`${activity.label}`)
 				.setDescription(`Activity Started for <#${channelID}>`);
 			interaction.update({ embeds: [msgEmbed], components: [row2] });
-			return;
 		}
-	});
+	},
 };
