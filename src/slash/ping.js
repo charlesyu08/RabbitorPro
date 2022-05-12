@@ -5,13 +5,13 @@ const prettyMS = require('pretty-ms');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('ping')
-		.setDescription('Get bot / server ping'),
+		.setDescription('Get bot / server ping')
+		.setDefaultPermission(false),
 	listener: async (client, discord, interaction) => {
 		if (interaction.commandName === 'ping') {
 			const msgemb = new Discord.MessageEmbed()
 				.setColor('#8080ff')
 				.setTitle('Ping');
-			// const message = await interaction.reply({ content: '_ _' });
 			const reply = await interaction.channel.send({ embeds: [msgemb] });
 			await reply.edit({ embeds: [msgemb.setTitle('**Ping ... Pong!!!**')] });
 			reply.delete().catch(error => {
@@ -26,6 +26,7 @@ module.exports = {
 				`:heartbeat: **Uptime:** ${prettyMS(client.uptime, { secondsDecimalDigits: 3 })}`)
 				.setTimestamp();
 			interaction.reply({ embeds: [msgemb], ephemeral: true });
+			return true;
 		}
 	},
 };

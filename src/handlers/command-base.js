@@ -4,12 +4,19 @@
 /* eslint-disable prefer-const */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
-
+const os = require('node:os');
 const mongo = require('@root/mongo');
 const ServerConfigSchema = require('@schemas/server-config-schema');
 const { prefix: globalPrefix } = require('@root/config.json');
+const { permission: replies } = require('@data/replies.json');
 const { Guild } = require('discord.js');
 const guildPrefixes = {}; // { 'guildId' : 'prefix' }
+/* const cooldownString = {
+	guildID,
+	memberID,
+	channelID,
+	command,
+}; */
 
 const validatePermissions = (permissions) => {
 	const validPermissions = [
@@ -63,12 +70,7 @@ const validateChannels = (client, channels) => {
 				validateChannels.push(channel.id);
 			}
 		}
-		catch(err) {
-			console.log('array error');
-			console.log('An error occoured while getting the channels.');
-			console.log(err);
-		}
-
+		catch(err) { console.log(`Array Error\nAn error occoured while getting the channels.\n${err}`); }
 		return validateChannels;
 	}
 	getChannelIDs();
@@ -94,7 +96,12 @@ module.exports = (client, commandOptions) => {
 		minArgs = 0,
 		maxArgs = null,
 		description = [],
-		cooldown = -1,
+		cooldown = -1, /* {
+			global: -1,
+			guild: -1,
+			channel: -1,
+			user: -1,
+		}, */
 		requiredChannels = [],
 		excludedChannels = [],
 		permissions = [],
@@ -133,7 +140,7 @@ module.exports = (client, commandOptions) => {
 	client.on('messageCreate', message => {
 		const { member, content, guild, channel } = message;
 
-		const prefix = guildPrefixes[guild.id] || globalPrefix;
+		const prefix = os.hostname() == 'DELL-XPS' ? '=' : guildPrefixes[guild.id] || globalPrefix;
 
 		for (const alias of commands) {
 			const command = `${prefix}${alias.toLowerCase()}`;
@@ -142,75 +149,16 @@ module.exports = (client, commandOptions) => {
 				content.toLowerCase().startsWith(`${command} `) ||
 				content.toLowerCase() === command
 			) {
-				if (!!excludedChannels && excludedChannels.length > 0) {
-					let nic = false;
-					for (const excludedChannel of excludedChannels) {
-						if (excludedChannel && excludedChannel === channel.id) {
-							nic = true;
-							break;
-						}
-					}
-					if (nic == true) {
-						let msg = '';
-						msg = 'You cannot run this command in this channel ';
-						message.reply(msg);
-						return;
-					}
+				try {
+					check_channel(excludedChannels, requiredChannels, guild, channel); // Ensure the user runs the command within the correct channels
+					check_permission(permissions, member); // Ensure the user has the required permissions
+					check_roles(requiredRoles, excludedRoles, guild, member); // Ensure the user has the required roles and not have disallowed roles
+					cooldownString = check_cooldown(guild, member, commands, cooldown);
 				}
-				if (!!requiredChannels && requiredChannels.length > 0) {
-					let nic = true;
-					for (const requiredChannel of requiredChannels) {
-						if (requiredChannel && requiredChannel === channel.id) {
-							nic = false;
-							break;
-						}
-					}
-					if (nic == true) {
-						let msg = '';
-						msg = 'You can only run this command inside of ';
-						for (const requiredChannel of requiredChannels) {
-							msg += `${requiredChannels.length > 1 ? ', ' : ''}<#${requiredChannel}> `;
-						}
-						message.reply(msg);
-						return;
-					}
-				}
-
-				for (const permission of permissions) {
-					if (!member.permissions.has(permission)) {
-						message.reply(permissionError);
-						return;
-					}
-				}
-
-				// Ensure the user has the required roles
-				for (const requiredRole of requiredRoles) {
-					const role = guild.roles.cache.find((role) => {
-						if (role.name == requiredRole) return role;
-						if (role.id == requiredRole) return role;
-					});
-					if (!role || !member.roles.cache.has(role.id)) {
-						message.reply(`You must have the "${requiredRole}" role to use this command.`);
-						return;
-					}
-				}
-
-				for (const excludedRole of excludedRoles) {
-					const role = guild.roles.cache.find((role) => {
-						if (role.name == excludedRole) return role;
-						if (role.id == excludedRole) return role;
-					});
-					if (member.roles.cache.has(role.id)) {
-						message.reply('You can not use this command.');
-						return;
-					}
-				}
-
-				let cooldownString = '${guild.id}-${member.id}-${commands[0]}';
-
-				if (cooldown > 0 && recentlyRan.includes(cooldownString)) {
-					message.reply('You cannot use that command so soon, please wait.');
-					return;
+				catch (err) {
+					console.log(err);
+					message.reply({ content: err, allowedMentions: { parse: [ 'users' ] } });
+					break;
 				}
 
 				const arguments = content.split(/[ ]+/);
@@ -254,6 +202,73 @@ module.exports.loadPrefixes = async (client) => {
 		const result = await ServerConfigSchema.findOne({ guildID: guildID });
 		guildPrefixes[guildID] = result ? result.prefix : globalPrefix;
 	}
-
 	console.log(guildPrefixes);
 };
+
+function check_channel(excludedChannels, requiredChannels, guild, mychannel) {
+	let msg = '', channels = [];
+	if (!!excludedChannels && excludedChannels.length > 0) {
+		for (const excludedChannel of excludedChannels) {
+			if (excludedChannel && excludedChannel === mychannel.id) { throw replies.excludedChannels; }
+		}
+	}
+	if (!!requiredChannels && requiredChannels.length > 0) {
+		for (const requiredChannel of requiredChannels) {
+			if (requiredChannel && requiredChannel === mychannel.id) { break; }
+			if(guild.channels.cache.get(requiredChannel)) { channels.push(requiredChannel);}
+		}
+		if (channels.length > 0) {
+			for (const channel of channels) {
+				msg += channel == channels[channels.length - 1] ? `<#${channel}>` : `<#${channel}>, `;
+			}
+			throw replies.requiredChannels.replaceAll('<f1>', `${channels.length > 1 ? 's' : ''}`).replaceAll('<f2>', `${msg}`);
+		}
+	}
+}
+
+function check_permission(permissions, member) {
+	let msg = '', perms = [];
+	for (const permission of permissions) {
+		if (!member.permissions.has(permission)) {
+			perms.push(permission);
+		}
+	}
+	if (perms.length > 0) {
+		for (const perm of perms) { msg += perm == perms[perms.length - 1] ? `\` ${perm} \`` : `\` ${perm} \`, `; }
+		throw replies.permissions.replaceAll('<f1>', `${perms.length > 1 ? 's' : ''}`).replaceAll('<f2>', `${msg}`);
+	}
+}
+
+function check_roles(requiredRoles, excludedRoles, guild, member) {
+	let msg = '', roles = [];
+	for (const requiredRole of requiredRoles) {
+		const role = guild.roles.cache.find((role) => {
+			if (role.name == requiredRole) return role;
+			if (role.id == requiredRole) return role;
+		});
+		if (role) {
+			if (member.roles.cache.has(role.id)) { break; }
+			roles.push(role);
+		}
+	}
+	if (roles.length > 0) {
+		for (const role of roles) { msg += role == roles[roles.length - 1] ? `${role}` : `${role} or `;}
+		throw replies.requiredRoles.replaceAll('<f1>', `${roles.length > 1 ? 's' : ''}`).replaceAll('<f2>', `${msg}`);
+	}
+
+	for (const excludedRole of excludedRoles) {
+		const role = guild.roles.cache.find((role) => {
+			if (role.name == excludedRole) return role;
+			if (role.id == excludedRole) return role;
+		});
+		if (role && member.roles.cache.has(role.id)) { throw replies.excludedRoles;}
+	}
+}
+
+function check_cooldown(guild, member, commands, cooldown) {
+	let cooldownString = `${guild.id}-${member.id}-${commands[0]}`;
+	if (cooldown > 0 && recentlyRan.includes(cooldownString)) {
+		throw 'You cannot use that command so soon, please wait.';
+	}
+	return cooldownString;
+}

@@ -1,4 +1,5 @@
 const { REST } = require('@discordjs/rest');
+const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
 const { Routes } = require('discord-api-types/v9');
 
 const path = require('path');
@@ -11,6 +12,7 @@ module.exports = (client, discord) => {
 
 	const readSlash = (dir) => {
 		const files = fs.readdirSync(path.join(__dirname, dir));
+		console.log('Started refreshing application (/) commands.');
 		for (const file of files) {
 			const stat = fs.lstatSync(path.join(__dirname, dir, file));
 			if (stat.isDirectory()) {
@@ -18,52 +20,41 @@ module.exports = (client, discord) => {
 			}
 			else if (file.includes('~') != true && dir.includes('/~') != true) {
 				const command = require(path.join(__dirname, dir, file));
-				commands.push(command.data.toJSON());
-				console.log(`${command.data.name} is added`);
+				(async () => {
+					try {
+						if(command.guild) {
+							await rest.put(
+								Routes.applicationGuildCommands(clientId, guildId),
+								{ body: [command.data.toJSON()] },
+							);
+						}
+						else {
+							await rest.put(
+								Routes.applicationCommands(clientId),
+								{ body: [command.data.toJSON()] },
+							);
+						}
+					}
+					catch (error) {
+						console.error(error);
+					}
+				})();
+				console.log(`${command.data.name}: (/)Command added`);
+				if (command.listener) {
+					commands.push(command);
+				}
 			}
 		}
+		console.log('Successfully reloaded application (/) commands.');
 	};
 	readSlash('.././slash');
 
-	const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
-
-	(async () => {
-
-		try {
-			console.log('Started refreshing application (/) commands.');
-
-			await rest.put(
-				Routes.applicationGuildCommands(clientId, guildId),
-				{ body: commands },
-			);
-
-			console.log('Successfully reloaded application (/) commands.');
+	client.on('interactionCreate', async (interaction) => {
+		if (!interaction.isCommand()) {return;}
+		else {
+			commands.forEach(async (command)=> {
+				await command.listener(client, discord, interaction) ? console.log(`${interaction.user.username}> Run the command: /${command.data.name}`) : '';
+			});
 		}
-		catch (error) {
-			console.error(error);
-		}
-	})();
-
-	const readCommands = (dir) => {
-		const myfunctions = [];
-		const files = fs.readdirSync(path.join(__dirname, dir));
-		for (const file of files) {
-			const stat = fs.lstatSync(path.join(__dirname, dir, file));
-			if (stat.isDirectory()) {
-				readCommands(path.join(dir, file));
-			}
-			else if (file.includes('~') != true && dir.includes('/~') != true) {
-				const command = require(path.join(__dirname, dir, file));
-				myfunctions.push(command);
-				console.log(`Listener ${file} added`);
-			}
-		}
-		client.on('interactionCreate', async (interaction) => {
-			if (!interaction.isCommand()) {return;}
-			else {
-				myfunctions.forEach(async (myfunction)=> { await myfunction.listener(client, discord, interaction);});
-			}
-		});
-	};
-	readCommands('.././slash');
+	});
 };

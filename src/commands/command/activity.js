@@ -1,16 +1,24 @@
+/* eslint-disable no-inline-comments */
 const Discord = require('discord.js');
 const { DiscordTogether } = require('discord-together');
 const { activity_ch } = require('@root/config');
 const { activities } = require('@data/activities');
+const deletemsg = require('@util/deletemsg');
 
 module.exports = {
 	commands: ['activity'],
 	minArgs: 0,
 	description: 'Activities',
-	requiredChannels: ['937829577856790618', '673727054688157716', '676582767139749950', '783440749357301780'],
-	//                 a-channel               bot-command            off-topic           vip-booster-chat
-	requiredRoles: ['935920535286726666', '677226056201011201'],
-	permissionError: 'You don\'t have permissions to run this command',
+	requiredChannels: [
+		'934043094989570100', // test
+		'673727054688157716', // bot-command
+		'676582767139749950', // off-topic
+		'783440749357301780', // vip-booster-chat
+	],
+	requiredRoles: [
+		'935920535286726666', // @King Rabbit
+		'677226056201011201', // @Thug (lvl 5)
+	],
 	callback: async (message, args, _, prefix, client) => {
 		await newActivity(message, client, args, prefix);
 		deletemsg(message);
@@ -51,19 +59,11 @@ async function getchannel(client, message, channelID) {
 	const result = await ServerConfigSchema.findOne({ guildID: message.guild.id });
 	if (message.member.voice.channel) { channelID = message.member.voice.channel.id; }
 	if (!client.channels.cache.get(channelID)) {
-		channelID = result ? result.activity_ch : activity_ch;
+		channelID = result.activity_ch || activity_ch;
 		if (!client.channels.cache.get(channelID)) { throw 'Please provide a valid voice channel'; }
 	}
 	if (client.channels.cache.get(channelID).guild.id != message.guild.id) { throw 'Please provide a valid voice channel'; }
 	return channelID;
-}
-
-function deletemsg(msg) {
-	msg.delete().catch(error => {
-		if (error.code !== Discord.Constants.APIErrors.UNKNOWN_MESSAGE) {
-			console.log('Failed to delete the message:', error);
-		}
-	});
 }
 
 module.exports.newActivity = async function(message, client, args, prefix) {await newActivity(message, client, args, prefix);};

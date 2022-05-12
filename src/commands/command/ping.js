@@ -2,6 +2,7 @@
 /* eslint-disable no-shadow-restricted-names */
 const Discord = require('discord.js');
 const prettyMS = require('pretty-ms');
+const deletemsg = require('@util/deletemsg');
 
 module.exports = {
 	commands: ['ping'],
@@ -27,13 +28,7 @@ module.exports = {
 			`:signal_strength: **API Ping:** ${prettyMS(API_ping, { secondsDecimalDigits: 3 })}\n\n` +
 			`:heartbeat: **Uptime:** ${prettyMS(client.uptime, { secondsDecimalDigits: 3 })}`)
 			.setTimestamp();
-		message.reply({ embeds: [msgemb] });
-		setTimeout(() => {
-			message.delete().catch(error => {
-				if (error.code !== Discord.Constants.APIErrors.UNKNOWN_MESSAGE) {
-					console.log('Failed to delete the message:', error);
-				}
-			});
-		}, 1000);
+		await message.reply({ embeds: [msgemb] });
+		deletemsg(message, 1000);
 	},
 };
